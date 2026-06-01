@@ -1,0 +1,15 @@
+# Sensitive environment variables
+.env
+
+# Dependencies 
+node_modules/
+
+# Prisma artifacts
+/generated/prisma
+prisma/*.db
+prisma/*.db-journal
+
+# Log files 
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
