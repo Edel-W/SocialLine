@@ -1,3 +1,4 @@
+const dotenv = require('dotenv').config();
 const express = require("express");
 const app = express();
 const PORT = 3000;
@@ -12,5 +13,5 @@ app.use("/user", userRouter);
 app.use("/comments", commentRouter);
 
 app.listen(PORT, () => {
-    console.log(`Server has started on PORT: {PORT}`); 
+    console.log(`Server has started on PORT: ${PORT}`); 
 });

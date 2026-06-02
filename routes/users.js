@@ -1,63 +1,19 @@
 const express = require("express");
 const router = express.Router();
-const { PrismaClient } = require("@prisma/client");
-const { validateUser, validateLogin } = require("../middleware/user");
-const prisma = new PrismaClient();
-const bcrypt = require("bcrypt");
+const { validateUser, validateLogin, validateDeletion, validateUpdate, validateGetUser } = require("../middleware/user");
+const authenticateToken = require("../middleware/auth");
+const { registerUser, loginUser, updateUser, deleteUser, getUser } = require("../controllers/user");
 
-router.get("/" , (req, res) => {
-    res.send({ data: "Users data fetched"});
-});
+router.get("/:user_id", validateGetUser, getUser);
 
-router.post("/", validateUser, async (req, res) => {
-        const { username, email, password, profile_picture, bio } = req.body;
+// Registration Route
+router.post("/", validateUser, registerUser);
 
-    try{
-        const hashedPassword = await bcrypt.hash(password, 10);
+// Login Route
+router.post("/login", validateLogin, loginUser);
 
-        const user = await prisma.users.create({
-            data: { 
-                username, 
-                email, 
-                password: hashedPassword,
-                profile_picture, 
-                bio
-            }
-        });
+router.put("/:id", authenticateToken, validateUpdate, updateUser);
 
-        res.status(201).json(user);
-
-    } catch (error) {
-        res.status(500).json({
-            error: error.message});
-    }
-});
-
-router.post("/", validateLogin, (req, res) => {
-    try {
-        const user = req.user;
-
-        return res.status(200).json({
-            message: "Login successful!",
-            user: {
-                id: user.id,
-                username: user.username,
-                email: user.email
-            }
-        });
-    } catch (error) {
-        return res.status(500).json({
-            error: "Something went wrong during the login completion."
-        })
-    }
-});
-
-router.put("/:id", (req,res) => {
-    res.send( { data: "User data updated!"});
-});
-
-router.delete("/:id", (req,res) => {
-    res.send( { data: "User deleted!"});
-});
+router.delete("/:id", authenticateToken, validateDeletion, deleteUser);
 
 module.exports = router;

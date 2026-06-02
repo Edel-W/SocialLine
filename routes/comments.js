@@ -1,21 +1,16 @@
 const express = require("express");
 const router = express.Router();
+const authenticateToken = require("../middleware/auth");
+const { validateComment, validateCommentDeletion, validateCommentUpdate , validateGetComment } = require("../middleware/comments");
+const { createComment, deleteComment, updateComment, getComment } = require("../controllers/comments");
 
 
-router.get("/" , (req, res) => {
-    res.send({ data: "Users data fetched"});
-});
+router.get("/single/:id" , validateGetComment, getComment );
 
-router.post("/", (req, res) => {
-    res.send( { data: "User created!"});
-});
+router.post("/:postId", authenticateToken, validateComment, createComment );
 
-router.put("/:id", (req,res) => {
-    res.send( { data: "User data updated!"});
-});
+router.delete("/:id", authenticateToken, validateCommentDeletion, deleteComment);
 
-router.delete("/:id", (req,res) => {
-    res.send( { data: "User deleted!"});
-});
+router.put("/:id", authenticateToken, validateCommentUpdate, updateComment);
 
 module.exports = router;
