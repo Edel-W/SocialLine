@@ -62,11 +62,11 @@ async function loginUser (req, res) {
 
 async function deleteUser (req, res) {
     try {
-        const user = req.user;
+        const userId = req.user.user_id;
 
         await prisma.users.delete({
             where: {
-                user_id: user.user_id
+                user_id: userId.user_id
             }
         });
 
@@ -80,11 +80,11 @@ async function deleteUser (req, res) {
 
 async function updateUser (req, res) {
     try {
-        const user = req.user;
+        const userId = req.user.user_id;
         const { username, bio, profile_picture } = req.body;
 
         const updatedUser = await prisma.users.update({
-            where: { user_id: user.user_id },
+            where: { user_id: userId },
             data: {
                 username,
                 bio,
@@ -109,7 +109,7 @@ async function updateUser (req, res) {
 
 async function getUser (req, res) {
     try {
-        const user = req.user;
+        const user = req.fetchedUser;
 
         return res.status(200).json({
             message: "User fetched successfully!", // FIXED: Typo clean up

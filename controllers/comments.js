@@ -5,12 +5,12 @@ async function createComment(req, res) {
     const { comment_content } = req.body;
 
     const { postId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user.user_id;
 
     try {
         const comment = await prisma.comments.create({
             data: {
-                comment_content,
+                comment_content: comment_content,
                 user_id: userId,
                 post_id: parseInt(postId)
             }
@@ -19,7 +19,7 @@ async function createComment(req, res) {
         return res.status(201).json({
             message: "Comment created Successfully!",
             comment: {
-                id: comment.comment_id,
+                comment_id: comment.comment_id,
                 comment_content: comment.comment_content,
                 user_id: comment.user_id,
                 post_id: comment.post_id,
@@ -63,7 +63,7 @@ async function updateComment (req, res) {
         const comment = await prisma.comments.update({
             where: { comment_id: parseInt(id) },
             data: {
-                comment_content
+                comment_content: comment_content
             }
         });
 
@@ -91,7 +91,7 @@ async function getComment (req, res) {
         return res.status(200).json({
             message: "Comment fetched successfully",
             comment: {
-                id: comment.comment_id,
+                comment_id: comment.comment_id,
                 comment_content: comment.comment_content,
                 post_id: comment.post_id,
                 user_id: comment.user_id,

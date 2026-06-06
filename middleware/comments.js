@@ -35,6 +35,7 @@ async function validateComment(req, res, next) {
 async function validateCommentDeletion(req, res, next) {
     try {
         const { id } = req.params; 
+        const userId = req.user.user_id;
 
         const comment = await prisma.comments.findUnique({
             where: { comment_id: parseInt(id) }
@@ -46,7 +47,7 @@ async function validateCommentDeletion(req, res, next) {
             });
         }
 
-        if (comment.user_id !== req.user.id) {
+    if (comment.user_id !== userId) {
             return res.status(403).json({
                 error: "Access denied. You can only delete your own comments."
             });
@@ -63,6 +64,7 @@ async function validateCommentUpdate(req, res, next) {
     try {
         const { id } = req.params;
         const { comment_content } = req.body;
+        const userId = req.user.user_id;
 
         if (!comment_content || comment_content.trim() === "") {
             return res.status(400).json({
@@ -80,7 +82,7 @@ async function validateCommentUpdate(req, res, next) {
             });
         }
 
-        if (comment.user_id !== req.user.id) {
+        if (comment.user_id !== userId) {
             return res.status(403).json({
                 error: "Access denied. You can only edit your own comments."
             });

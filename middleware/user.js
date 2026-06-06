@@ -56,18 +56,10 @@ async function validateLogin (req, res, next) {
             }
         });
 
-        if(!user) {
+        if(!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({
                 error: "Invalid username, email or password!"
             });
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-
-        if(!isMatch) {
-            return res.status(401).json({
-                error: "Invalid username, email or password!"
-            });        
         }
 
         req.user = user;
@@ -80,7 +72,7 @@ async function validateLogin (req, res, next) {
 async function validateDeletion (req, res, next) {
     try {
         const { password } = req.body;
-        const userId = req.user.user_id || req.user.id; 
+        const userId = req.user.user_id;
 
         if (!password) {
             return res.status(400).json({
@@ -112,7 +104,7 @@ async function validateDeletion (req, res, next) {
 async function validateUpdate (req, res, next) { // FIXED: Added missing 'next' parameter parameter reference
     try {
         const { password } = req.body;
-        const userId = req.user.user_id || req.user.id; 
+        const userId = req.user.user_id;
 
         if(!password) {
             return res.status(400).json({
@@ -142,11 +134,11 @@ async function validateUpdate (req, res, next) { // FIXED: Added missing 'next' 
 }
 
 async function validateGetUser (req, res, next) {
-    const { user_id } = req.params;
+    const { id } = req.params;
 
     try {
         const user = await prisma.users.findUnique({
-            where: { user_id: parseInt(user_id) }
+            where: { user_id: parseInt(id) }
         });
 
         if(!user) {
@@ -155,7 +147,7 @@ async function validateGetUser (req, res, next) {
             });
         }
 
-        req.user = user;
+        req.fetchedUser = user;
         next();
     } catch(error) {
         return res.status(500).json({ error: error.message });
