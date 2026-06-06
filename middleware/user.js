@@ -38,26 +38,21 @@ async function validateUser(req, res, next) {
 
 async function validateLogin (req, res, next) {
     try {
-        const { identifier, password } = req.body; 
+        const { username, password } = req.body; // Changed from identifier
 
-        if(!identifier || !password) {
+        if(!username || !password) {
             return res.status(400).json({
-                error: "Please provide your email/username and password."
+                error: "Please provide your username and password."
             });
         }
 
-        const user = await prisma.users.findFirst({
-            where:{
-                OR: [
-                    { email: identifier },
-                    { username: identifier }
-                ]
-            }
+        const user = await prisma.users.findUnique({
+            where: { username: username } // Cleaner findUnique lookup
         });
 
         if(!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({
-                error: "Invalid username, email or password!"
+                error: "Invalid username or password!"
             });
         }
 

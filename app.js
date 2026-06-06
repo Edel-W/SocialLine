@@ -15,7 +15,7 @@ const adminRouter = require("./routes/admin");
 app.use(express.json());
 
 app.use("/user", userRouter);
-app.use("/posts", postRouter);      
+app.use("/post", postRouter);      
 app.use("/comments", commentRouter);
 app.use("/likes", likeRouter);       
 app.use("/follows", followRouter);   
