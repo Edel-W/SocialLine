@@ -4,7 +4,7 @@ const { validateUser, validateLogin, validateDeletion, validateUpdate, validateG
 const authenticateToken = require("../middleware/auth");
 const { registerUser, loginUser, updateUser, deleteUser, getUser } = require("../controllers/user");
 
-router.get("/:user_id", validateGetUser, getUser);
+router.get("/:id", validateGetUser, getUser);
 
 // Registration Route
 router.post("/", validateUser, registerUser);

@@ -1,5 +1,4 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const prisma = require("../prisma"); 
 const bcrypt = require("bcrypt");
 
 async function validateUser(req, res, next) {
@@ -101,7 +100,7 @@ async function validateDeletion (req, res, next) {
     }
 }
 
-async function validateUpdate (req, res, next) { // FIXED: Added missing 'next' parameter parameter reference
+async function validateUpdate (req, res, next) {
     try {
         const { password } = req.body;
         const userId = req.user.user_id;
@@ -134,7 +133,7 @@ async function validateUpdate (req, res, next) { // FIXED: Added missing 'next' 
 }
 
 async function validateGetUser (req, res, next) {
-    const { id } = req.params;
+    const { id } = req.params; 
 
     try {
         const user = await prisma.users.findUnique({
@@ -153,7 +152,6 @@ async function validateGetUser (req, res, next) {
         return res.status(500).json({ error: error.message });
     }
 }
-
 module.exports = {
     validateUser,
     validateLogin,

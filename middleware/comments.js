@@ -1,11 +1,8 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
-
+const prisma = require("../prisma"); 
 
 async function validateComment(req, res, next) {
     try {
         const { comment_content } = req.body;
-        
         const { postId } = req.params; 
 
         if (!comment_content || comment_content.trim() === "") {
@@ -30,8 +27,6 @@ async function validateComment(req, res, next) {
     }
 }
 
-
-
 async function validateCommentDeletion(req, res, next) {
     try {
         const { id } = req.params; 
@@ -47,7 +42,7 @@ async function validateCommentDeletion(req, res, next) {
             });
         }
 
-    if (comment.user_id !== userId) {
+        if (comment.user_id !== userId) {
             return res.status(403).json({
                 error: "Access denied. You can only delete your own comments."
             });
@@ -58,7 +53,6 @@ async function validateCommentDeletion(req, res, next) {
         return res.status(500).json({ error: error.message });
     }
 }
-
 
 async function validateCommentUpdate(req, res, next) {
     try {
@@ -99,7 +93,16 @@ async function validateGetComment (req, res, next) {
     
     try {
         const comment = await prisma.comments.findUnique({
-            where: { comment_id: parseInt(id)}
+            where: { comment_id: parseInt(id)},
+            // CHANGED: Pull user data along with the comment verification lookup
+            include: {
+                users: {
+                    select: {
+                        username: true,
+                        profile_picture: true
+                    }
+                }
+            }
         });
 
         if(!comment) {
@@ -108,7 +111,7 @@ async function validateGetComment (req, res, next) {
             });
         }
 
-        req.comment = comment;
+        req.comment = comment; // req.comment now contains the comment and the nested .users object
         next();
 
     } catch(error) {

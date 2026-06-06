@@ -1,5 +1,4 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const prisma = require("../prisma"); 
 
 async function createPost (req, res) {
         const { post_content, image_url } = req.body;

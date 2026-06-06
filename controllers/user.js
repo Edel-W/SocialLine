@@ -1,5 +1,4 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const prisma = require("../prisma"); 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -66,7 +65,7 @@ async function deleteUser (req, res) {
 
         await prisma.users.delete({
             where: {
-                user_id: userId.user_id
+                user_id: userId
             }
         });
 
