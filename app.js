@@ -25,6 +25,6 @@ app.use("/search", searchRouter);
 app.use("/admin", adminRouter);
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server has started on PORT: ${PORT}`); 
 });

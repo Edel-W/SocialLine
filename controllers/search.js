@@ -1,32 +1,25 @@
-const prisma = require("../prisma"); 
+const prisma = require("../prisma");
 
 async function searchEverything(req, res) {
+    const q = req.cleanSearchQuery; 
+
     try {
-        const searchKeyword = req.cleanSearchQuery;
-
-        const [matchedUsers, matchedPosts] = await Promise.all([
-            prisma.users.findMany({
-                where: {
-                    OR: [
-                        { username: { contains: searchKeyword, mode: "insensitive" } },
-                        { bio: { contains: searchKeyword, mode: "insensitive" } }
-                    ]
-                },
-                select: { user_id: true, username: true, profile_picture: true, bio: true }
-            }),
-            prisma.posts.findMany({
-                where: {
-                    post_content: { contains: searchKeyword, mode: "insensitive" }
-                },
-                include: {
-                    users: { select: { username: true, profile_picture: true } }
+        const users = await prisma.users.findMany({
+            where: {
+                username: {
+                    contains: q,         
+                    mode: 'insensitive' 
                 }
-            })
-        ]);
-
-        return res.status(200).json({
-            results: { users: matchedUsers, posts: matchedPosts }
+            },
+            select: {
+                user_id: true,
+                username: true,
+                profile_picture: true,
+                bio: true
+            }
         });
+
+        return res.status(200).json({ results: users });
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }

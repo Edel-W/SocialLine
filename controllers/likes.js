@@ -1,64 +1,42 @@
-const prisma = require("../prisma"); 
+const prisma = require("../prisma");
 
-async function toggleLike(req, res) {
-    const { id } = req.params; 
+async function likePost(req, res) {
     const userId = req.user.user_id;
-
-    try {
-        const existingLike = await prisma.likes.findFirst({
-            where: {
-                post_id: parseInt(id),
-                user_id: userId
-            }
-        });
-
-        if (existingLike) {
-            await prisma.likes.delete({
-                where: { like_id: existingLike.like_id }
-            });
-            return res.status(200).json({ message: "Post unliked successfully!" });
-        } else {
-            const newLike = await prisma.likes.create({
-                data: {
-                    post_id: parseInt(id),
-                    user_id: userId
-                }
-            });
-            return res.status(201).json({
-                message: "Post liked successfully!",
-                like: newLike
-            });
-        }
-    } catch (error) {
-        return res.status(500).json({ error: error.message });
-    }
-}
-
-async function getPostLikes(req, res) {
     const { id } = req.params;
 
     try {
-        const likes = await prisma.likes.findMany({
-            where: { post_id: parseInt(id) },
-            include: {
-                users: { 
-                    select: {
-                        user_id: true,
-                        username: true,
-                        profile_picture: true
-                    }
+        await prisma.likes.create({
+            data: {
+                user_id: userId,
+                post_id: parseInt(id)
+            }
+        });
+        return res.status(201).json({ message: "Post liked successfully." });
+    } catch (error) {
+        if (error.code === 'P2002') {
+            return res.status(400).json({ error: "You have already liked this post." });
+        }
+        return res.status(500).json({ error: error.message });
+    }
+}
+
+async function unlikePost(req, res) {
+    const userId = req.user.user_id;
+    const { id } = req.params;
+
+    try {
+        await prisma.likes.delete({
+            where: {
+                user_id_post_id: {
+                    user_id: userId,
+                    post_id: parseInt(id)
                 }
             }
         });
-
-        return res.status(200).json({
-            message: "Likes fetched successfully",
-            count: likes.length,
-            likes: likes
-        });
+        return res.status(200).json({ message: "Post unliked successfully." });
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
 }
 
-module.exports = { toggleLike, getPostLikes };
+module.exports = { likePost, unlikePost };
