@@ -16,7 +16,7 @@ async function registerUser(req, res) {
                 email,
                 password: hashedPassword,
                 profile_picture,
-                bio
+                bio: bio || ""
             }
         });
 
@@ -49,9 +49,11 @@ async function loginUser (req, res) {
             message: "Login successful!",
             token: token,
             user: {
-                id: user.user_id,
+                user_id: user.user_id,
                 username: user.username,
-                email: user.email
+                email: user.email,
+                bio: user.bio,
+                profile_picture: user.profile_picture
             }
         });
     } catch (error) {
@@ -106,24 +108,51 @@ async function updateUser (req, res) {
     }
 }
 
-async function getUser (req, res) {
+async function getUser(req, res) {
     try {
         const user = req.fetchedUser;
 
+        const [postsCount, followersCount, followingCount] = await Promise.all([
+            prisma.posts.count({
+                where: {
+                    user_id: user.user_id
+                }
+            }),
+
+            prisma.follows.count({
+                where: {
+                    following_id: user.user_id
+                }
+            }),
+
+            prisma.follows.count({
+                where: {
+                    follower_id: user.user_id
+                }
+            })
+        ]);
+
         return res.status(200).json({
-            message: "User fetched successfully!", // FIXED: Typo clean up
+            message: "User fetched successfully!",
             user: {
                 user_id: user.user_id,
                 username: user.username,
                 bio: user.bio,
-                profile_picture: user.profile_picture
+                profile_picture: user.profile_picture,
+                posts_count: postsCount,
+                followers_count: followersCount,
+                following_count: followingCount
             }
         });
-    } catch(error) {
-        return res.status(500).json({ error: error.message });
+
+    } catch (error) {
+        console.error("getUser Error:", error);
+
+        return res.status(500).json({
+            error: error.message
+        });
     }
 }
-
 module.exports = {
     registerUser,
     loginUser,

@@ -5,7 +5,7 @@ const authenticateToken = require("../middleware/auth");
 const upload = require("../middleware/upload");
 const { createPost, updatePost, deletePost, getPost, getFeed } = require("../controllers/post");
 
-router.get("/feed/all", getFeed);
+router.get("/feed", authenticateToken, getFeed);
 
 router.get("/:id", validateGetPost, getPost);
 
